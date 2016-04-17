@@ -29,7 +29,6 @@ class FilesController < ApplicationController
 	def preview
 		@slug = Dump.clean_name(params[:slug])
 		@filename = Dump.clean_name(params[:filename])
-		Rails.logger.info("UA: #{request.user_agent}")
 	end
 	
 	def download
