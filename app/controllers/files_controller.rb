@@ -15,6 +15,13 @@ class FilesController < ApplicationController
 			file_name = File.join(Settings.dir, "files", file_key, cleaned_name)
 			FileUtils.mkdir_p File.join(Settings.dir, "files", file_key)
 			File.open(file_name, "wb") do |f| f.write uploaded.read end
+			# Success! Log it.
+			u = Upload.new
+			u.ip = request.remote_ip
+			u.filename = File.join("files", file_key, cleaned_name)
+			u.user_agent = UserAgent.mkagent(request.user_agent)
+			u.size = uploaded.size
+			u.save!
 			redirect_to url_for(controller: "files", action: "preview", slug: file_key, filename: cleaned_name)
 		end
 	end
