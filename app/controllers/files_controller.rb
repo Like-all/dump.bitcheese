@@ -20,11 +20,12 @@ class FilesController < ApplicationController
 	end
 	
 	def preview
-		slug = params[:slug]
-		filename = params[:filename]
+		@slug = Dump.clean_name(params[:slug])
+		@filename = Dump.clean_name(params[:filename])
+		Rails.logger.info("UA: #{request.user_agent}")
 	end
 	
 	def download
-		send_file "#{Settings.dir}/files/#{params[:slug]}/#{params[:filename]}", x_sendfile: true
+		send_file "#{Settings.dir}/files/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}", x_sendfile: true
 	end
 end
