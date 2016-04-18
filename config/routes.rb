@@ -9,8 +9,10 @@ Rails.application.routes.draw do
 	
 	get 'files/:slug/:filename', to: 'files#download', slug: slug_template, filename: file_template
 	get 'files/:filename', to: 'files#download', filename: file_template
+	get 'files/:filename/preview', to: 'files#preview', filename: file_template
 	get 'images/:slug/:filename', to: 'images#download', slug: slug_template, filename: file_template
 	get 'images/:filename', to: 'images#download', filename: file_template
+	get 'images/:slug/thumb/:filename', to: 'images#thumb', slug: slug_template, filename: file_template
 	get 'images/:slug/:filename/preview', to: 'images#preview', slug: slug_template, filename: file_template
 	get 'files/:slug/:filename/preview', to: 'files#preview', slug: slug_template, filename: file_template
 	

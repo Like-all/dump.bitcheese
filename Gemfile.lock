@@ -98,6 +98,7 @@ GEM
     rake (11.1.2)
     rdoc (4.2.2)
       json (~> 1.4)
+    rmagick (2.15.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
@@ -127,6 +128,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   pg (~> 0.15)
   rails (= 4.2.5.1)
+  rmagick
   sdoc (~> 0.4.0)
   web-console (~> 2.0)
 
