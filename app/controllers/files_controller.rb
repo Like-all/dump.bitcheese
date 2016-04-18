@@ -39,13 +39,15 @@ class FilesController < ApplicationController
 	def download
 		filename = "#{Settings.dir}/files/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}"
 		raise ActionController::RoutingError.new('Not Found') unless File.exists? filename
-		u = Download.new
-		u.ip = request.remote_ip
-		u.filename = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
-		u.user_agent = UserAgent.mkagent(request.user_agent)
-		u.referer = Referer.mkreferer(request.referer)
-		u.size = File.size(filename)
-		u.save!
+		if !request.referer.start_with?(root_url(only_path: false))
+			u = Download.new
+			u.ip = request.remote_ip
+			u.filename = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
+			u.user_agent = UserAgent.mkagent(request.user_agent)
+			u.referer = Referer.mkreferer(request.referer)
+			u.size = File.size(filename)
+			u.save!
+		end
 		send_file filename, x_sendfile: true, disposition: "inline"
 	end
 end
