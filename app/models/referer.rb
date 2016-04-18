@@ -7,4 +7,8 @@ class Referer < ActiveRecord::Base
 			Referer.new(referer_string: referer_string)
 		end
 	end
+	
+	def distinct_downloads
+		self.downloads.group("filename").count
+	end
 end

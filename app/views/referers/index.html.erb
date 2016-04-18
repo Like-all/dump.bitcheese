@@ -1,0 +1,11 @@
+<h1> Referer list </h1>
+
+<% @referers.each do |referer| %>
+<p>
+	<%= link_to referer.referer_string, referer.referer_string %> <br />
+	Files:
+	<% referer.distinct_downloads.each do |download| %>
+		<%= link_to download[0], "/" + download[0] %> (<%= download[1] %>)
+	<% end %>
+</p>
+<% end %>
