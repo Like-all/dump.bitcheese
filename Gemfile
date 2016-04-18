@@ -12,16 +12,15 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'config'
 gem 'rmagick'
-gem 'unicorn'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use Unicorn as the app server
-# gem 'unicorn'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+
+gem 'puma'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -39,6 +38,6 @@ group :development do
   gem 'capistrano-rails'
   gem 'capistrano-bundler'
   gem 'capistrano-rvm'
-  gem 'capistrano3-unicorn'
+  gem 'capistrano-puma'
   gem 'capistrano-linked-files'
 end
