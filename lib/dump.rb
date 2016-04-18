@@ -1,16 +1,9 @@
 class Dump
+	VOWELS = 'wrtpsdfghjklzxcvbnm'.chars.freeze
+	CONSONANTS = 'eyuioa'.chars.freeze
+
 	def self.gen_key(len)
-		unvowels = "wrtpsdfghjklzxcvbnm".chars
-		vowels = "eyuioa".chars
-		key = ""
-		len.times do |i|
-			if i % 2 == 0
-				key << vowels.sample
-			else
-				key << unvowels.sample
-			end
-		end
-		key
+		Array.new(len) { |i| i.even? ? VOWELS.sample : CONSONANTS.sample }.join
 	end
 	
 	def self.gen_suitable_key(len, tst)
@@ -21,6 +14,6 @@ class Dump
 	end
 	
 	def self.clean_name(name)
-		name.gsub(/[\s\0\/]/, "_")
+		name.gsub(%r|[\s\0/]|, "_")
 	end
 end
