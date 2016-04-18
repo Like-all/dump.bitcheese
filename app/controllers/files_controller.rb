@@ -46,6 +46,6 @@ class FilesController < ApplicationController
 		u.referer = Referer.mkreferer(request.referer)
 		u.size = File.size(filename)
 		u.save!
-		send_file filename, x_sendfile: true
+		send_file filename, x_sendfile: true, disposition: "inline"
 	end
 end
