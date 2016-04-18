@@ -22,7 +22,11 @@ class FilesController < ApplicationController
 			u.user_agent = UserAgent.mkagent(request.user_agent)
 			u.size = uploaded.size
 			u.save!
-			redirect_to url_for(controller: "files", action: "preview", slug: file_key, filename: cleaned_name)
+			if request.query_string == "simple"
+				render plain: url_for(controller: "files", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
+			else
+				redirect_to url_for(controller: "files", action: "preview", slug: file_key, filename: cleaned_name)
+			end
 		end
 	end
 	
