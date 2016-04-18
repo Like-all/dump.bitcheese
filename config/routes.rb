@@ -21,8 +21,8 @@ Rails.application.routes.draw do
 	post 'upload-image', to: 'images#upload'
 	
 	match '/404', to: 'errors#not_found', via: :all
-  match '/422', to: 'errors#unprocessable', via: :all
-  match '/500', to: 'errors#internal_error', via: :all
+	match '/422', to: 'errors#unprocessable', via: :all
+	match '/500', to: 'errors#internal_error', via: :all
 
 	# /
 	# Example of regular route:
