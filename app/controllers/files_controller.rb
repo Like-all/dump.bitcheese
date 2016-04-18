@@ -27,8 +27,9 @@ class FilesController < ApplicationController
 	end
 	
 	def preview
-		@slug = Dump.clean_name(params[:slug])
+		@slug = Dump.clean_name(params[:slug].to_s)
 		@filename = Dump.clean_name(params[:filename])
+		@size = File.size("#{Settings.dir}/files/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}")
 	end
 	
 	def download
