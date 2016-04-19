@@ -39,7 +39,7 @@ class FilesController < ApplicationController
 	def download
 		filename = "#{Settings.dir}/files/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}"
 		raise ActionController::RoutingError.new('Not Found') unless File.exists? filename
-		if !request.referer.start_with?(root_url(only_path: false))
+		if !request.referer.to_s.start_with?(root_url(only_path: false))
 			u = Download.new
 			u.ip = request.remote_ip
 			u.filename = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))

@@ -67,13 +67,15 @@ class ImagesController < ApplicationController
 			FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
 			image.write(thumb_name)
 		end
-		u = Download.new
-		u.ip = request.remote_ip
-		u.filename = File.join("images", Dump.clean_name(params[:slug].to_s), "thumb", Dump.clean_name(params[:filename]))
-		u.user_agent = UserAgent.mkagent(request.user_agent)
-		u.referer = Referer.mkreferer(request.referer)
-		u.size = File.size(filename)
-		u.save!
+		if !request.referer.to_s.start_with?(root_url(only_path: false))
+			u = Download.new
+			u.ip = request.remote_ip
+			u.filename = File.join("images", Dump.clean_name(params[:slug].to_s), "thumb", Dump.clean_name(params[:filename]))
+			u.user_agent = UserAgent.mkagent(request.user_agent)
+			u.referer = Referer.mkreferer(request.referer)
+			u.size = File.size(filename)
+			u.save!
+		end
 		send_file thumb_name, x_sendfile: true, disposition: "inline"
 	end
 end
