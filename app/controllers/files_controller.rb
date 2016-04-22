@@ -22,6 +22,10 @@ class FilesController < ApplicationController
 			u.user_agent = UserAgent.mkagent(request.user_agent)
 			u.size = uploaded.size
 			u.save!
+			f = DumpedFile.find_or_initialize_by(filename: u.filename)
+			f.size = uploaded.size
+			f.accessed_at = DateTime.now
+			f.save!
 			if request.query_string == "simple"
 				render plain: url_for(controller: "files", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
 			else
@@ -39,15 +43,20 @@ class FilesController < ApplicationController
 	def download
 		filename = "#{Settings.dir}/files/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}"
 		raise ActionController::RoutingError.new('Not Found') unless File.exists? filename
+		fname = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
 		if !request.referer.to_s.start_with?(root_url(only_path: false))
 			u = Download.new
 			u.ip = request.remote_ip
-			u.filename = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
+			u.filename = fname
 			u.user_agent = UserAgent.mkagent(request.user_agent)
 			u.referer = Referer.mkreferer(request.referer)
 			u.size = File.size(filename)
 			u.save!
 		end
+		f = DumpedFile.find_or_initialize_by(filename: fname)
+		f.size = File.size(filename)
+		f.accessed_at = DateTime.now
+		f.save!
 		send_file filename, x_sendfile: true, disposition: "inline"
 	end
 end

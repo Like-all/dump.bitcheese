@@ -27,6 +27,10 @@ class ImagesController < ApplicationController
 			u.user_agent = UserAgent.mkagent(request.user_agent)
 			u.size = uploaded.size
 			u.save!
+			f = DumpedFile.find_or_initialize_by(filename: u.filename)
+			f.size = uploaded.size
+			f.accessed_at = DateTime.now
+			f.save!
 			if request.query_string == "simple"
 				render plain: url_for(controller: "images", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
 			else
@@ -53,6 +57,10 @@ class ImagesController < ApplicationController
 		u.referer = Referer.mkreferer(request.referer)
 		u.size = File.size(filename)
 		u.save!
+		f = DumpedFile.find_or_initialize_by(filename: u.filename)
+		f.size = File.size(filename)
+		f.accessed_at = DateTime.now
+		f.save!
 		send_file filename, x_sendfile: true, disposition: "inline"
 	end
 	
@@ -76,6 +84,10 @@ class ImagesController < ApplicationController
 			u.size = File.size(filename)
 			u.save!
 		end
+		f = DumpedFile.find_or_initialize_by(filename: File.join("images", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename])))
+		f.size = File.size(filename)
+		f.accessed_at = DateTime.now
+		f.save!
 		send_file thumb_name, x_sendfile: true, disposition: "inline"
 	end
 end

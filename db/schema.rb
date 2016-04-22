@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160416180254) do
+ActiveRecord::Schema.define(version: 20160421221446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,6 +30,19 @@ ActiveRecord::Schema.define(version: 20160416180254) do
   add_index "downloads", ["ip"], name: "index_downloads_on_ip", using: :btree
   add_index "downloads", ["referer_id"], name: "index_downloads_on_referer_id", using: :btree
   add_index "downloads", ["user_agent_id"], name: "index_downloads_on_user_agent_id", using: :btree
+
+  create_table "dumped_files", force: :cascade do |t|
+    t.datetime "accessed_at"
+    t.boolean  "file_frozen", default: false
+    t.string   "filename"
+    t.integer  "size"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
+  add_index "dumped_files", ["accessed_at"], name: "index_dumped_files_on_accessed_at", using: :btree
+  add_index "dumped_files", ["filename"], name: "index_dumped_files_on_filename", unique: true, using: :btree
+  add_index "dumped_files", ["size"], name: "index_dumped_files_on_size", using: :btree
 
   create_table "referers", force: :cascade do |t|
     t.text     "referer_string"
