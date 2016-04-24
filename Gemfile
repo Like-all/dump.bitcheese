@@ -12,7 +12,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'config'
 gem 'rmagick'
-
+gem 'aws-sdk'
+gem 'delayed_job_active_record'
+gem 'whenever', :require => false
+gem 'gpgme'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

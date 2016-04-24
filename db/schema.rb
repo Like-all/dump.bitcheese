@@ -11,10 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160421221446) do
+ActiveRecord::Schema.define(version: 20160424203047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "delayed_jobs", force: :cascade do |t|
+    t.integer  "priority",   default: 0, null: false
+    t.integer  "attempts",   default: 0, null: false
+    t.text     "handler",                null: false
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
   create_table "downloads", force: :cascade do |t|
     t.inet     "ip"
@@ -44,6 +60,15 @@ ActiveRecord::Schema.define(version: 20160421221446) do
   add_index "dumped_files", ["filename"], name: "index_dumped_files_on_filename", unique: true, using: :btree
   add_index "dumped_files", ["size"], name: "index_dumped_files_on_size", using: :btree
 
+  create_table "frozen_files", force: :cascade do |t|
+    t.string   "file_id"
+    t.integer  "dumped_file_id"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "frozen_files", ["dumped_file_id"], name: "index_frozen_files_on_dumped_file_id", unique: true, using: :btree
+
   create_table "referers", force: :cascade do |t|
     t.text     "referer_string"
     t.datetime "created_at",     null: false
@@ -51,6 +76,23 @@ ActiveRecord::Schema.define(version: 20160421221446) do
   end
 
   add_index "referers", ["referer_string"], name: "index_referers_on_referer_string", unique: true, using: :btree
+
+  create_table "thaw_requests", force: :cascade do |t|
+    t.string   "filename"
+    t.integer  "size"
+    t.integer  "referer_id"
+    t.integer  "user_agent_id"
+    t.inet     "ip"
+    t.boolean  "finished",      default: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "thaw_requests", ["filename"], name: "index_thaw_requests_on_filename", using: :btree
+  add_index "thaw_requests", ["ip"], name: "index_thaw_requests_on_ip", using: :btree
+  add_index "thaw_requests", ["referer_id"], name: "index_thaw_requests_on_referer_id", using: :btree
+  add_index "thaw_requests", ["size"], name: "index_thaw_requests_on_size", using: :btree
+  add_index "thaw_requests", ["user_agent_id"], name: "index_thaw_requests_on_user_agent_id", using: :btree
 
   create_table "uploads", force: :cascade do |t|
     t.inet     "ip"

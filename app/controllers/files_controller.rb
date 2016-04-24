@@ -41,9 +41,24 @@ class FilesController < ApplicationController
 	end
 	
 	def download
-		filename = File.join(Settings.dir, "files",Dump.clean_name(params[:slug].to_s),Dump.clean_name(params[:filename]))
-		raise ActionController::RoutingError.new('Not Found') unless File.exists? filename
 		fname = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
+		filename = File.join(Settings.dir, "files",Dump.clean_name(params[:slug].to_s),Dump.clean_name(params[:filename]))
+		f = DumpedFile.find_or_initialize_by(filename: fname)
+		if !File.exists?(filename) && f.file_frozen
+			if DumpedFile.find_by(filename: fname, file_frozen: true)
+				unless ThawRequest.find_by(filename: fname, finished: false)
+					tr = ThawRequest.new(filename: fname, referer: Referer.mkreferer(request.referer), size: f.size, user_agent: UserAgent.mkagent(request.user_agent), ip: request.remote_ip)
+					tr.save!
+					FileRetrievalJob.perform_later(f)
+				end
+				return(render('files/thawin', status: 503))
+			end
+		elsif f.file_frozen
+			f.mark_thawed!
+			ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
+		elsif !File.exists?(filename) 
+			raise ActionController::RoutingError.new('Not Found')
+		end
 		if !request.referer.to_s.start_with?(root_url(only_path: false))
 			u = Download.new
 			u.ip = request.remote_ip
@@ -53,7 +68,7 @@ class FilesController < ApplicationController
 			u.size = File.size(filename)
 			u.save!
 		end
-		f = DumpedFile.find_or_initialize_by(filename: fname)
+		
 		f.size = File.size(filename)
 		f.accessed_at = DateTime.now
 		f.save!
