@@ -61,7 +61,8 @@ class ImagesController < ApplicationController
 		f.size = File.size(filename)
 		f.accessed_at = DateTime.now
 		f.save!
-		send_file filename, x_sendfile: true, disposition: "inline"
+		content_type = IO.popen(%w|file -e text -e encoding -e tokens -e cdf  -e compress -e apptype -e elf -e tar -ib| << filename) do |i| i.read end.split(";")[0]
+		send_file filename, x_sendfile: true, disposition: "inline", type: content_type
 	end
 	
 	def thumb
@@ -88,6 +89,7 @@ class ImagesController < ApplicationController
 		f.size = File.size(filename)
 		f.accessed_at = DateTime.now
 		f.save!
-		send_file thumb_name, x_sendfile: true, disposition: "inline"
+		content_type = IO.popen(%w|file -e text -e encoding -e tokens -e cdf  -e compress -e apptype -e elf -e tar -ib| << thumb_name) do |i| i.read end.split(";")[0]
+		send_file thumb_name, x_sendfile: true, disposition: "inline", type: content_type
 	end
 end
