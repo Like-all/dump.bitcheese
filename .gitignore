@@ -12,8 +12,8 @@
 !/log/.keep
 /tmp
 
-config/settings.yml
-config/settings/*.yml
-config/environments/*.local.yml
+config/settings/development.yml
+config/settings/production.yml
 config/secrets.yml
+config/database.yml
 static

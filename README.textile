@@ -1,0 +1,48 @@
+h1. dump.bitcheese
+
+File dumping software.
+
+h2. Deployment
+
+Requirements: knowing how to deploy typical rails app
+
+# Write config/database.yml
+# Generate config/secrets.yml
+# Write @config/settings/<environment>.yml@ using @config/settings/example.yml@ as guide
+# Write your own @deploy/environments/<environment>.rb@
+# cap production deploy
+
+Deploy behind nginx with config like this:
+
+bc.. 
+upstream dump_site {
+  server unix:/home/dump/dump/shared/tmp/sockets/puma.sock fail_timeout=0;
+}
+
+server {
+	listen 80;
+	listen [::]:80 ipv6only=on;
+	listen 443 ssl;
+	listen [::]:443 default ipv6only=on ssl;
+	client_max_body_size 50M;
+	server_name     dump.localhost;
+
+	location /static
+	{
+		root /var/dump;
+		autoindex off;
+		internal;
+		expires 1y;
+	}
+
+	location /
+	{
+		proxy_pass         http://dump_site;
+		proxy_redirect     off;
+		proxy_read_timeout 600;
+		proxy_set_header   Host             $host;
+		proxy_set_header   X-Real-IP        $remote_addr;
+		proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+		proxy_set_header   X-Accel-Mapping /var/dump/static=/static;
+	}
+}

@@ -1,0 +1,32 @@
+max_file_size: 20000000
+max_image_size: 10000000
+thumb_width: 400
+thumb_height: 300
+# Directory with all the files
+dir: /var/dumper/static
+# Size of file key like images/abcdxz/foobar.jpg
+key_size: 7
+# Password to access admin area
+stats_password: qwerty
+glaciate:
+  # Way to freeze the files. Options: :glacier -- uploads to Amazon Glacier, :cp -- copies to some directory
+  way: :glacier
+  # Directory for :cp
+  target: /var/dumper/freezer
+gpg:
+  # long fingerprint of used gpg key
+  # must be available for gpg2
+  key_id: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  # passphrase of said key
+  passphrase: 666
+glacier:
+  # Glacier credentials
+  access_key_id: AZAZADF12131414
+  secret_access_key: 1nFg4tewgergerggttidfdgdgg
+  # Glacier destination
+  vault_name: dump
+  region: eu-west-1
+# Contact url to be presented to users
+contact_url: http://example.com
+# Average time it takes to thaw the file, users will receive ETA based on this
+average_thawing_time: 5
