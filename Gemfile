@@ -16,6 +16,7 @@ gem 'aws-sdk'
 gem 'delayed_job_active_record'
 gem 'whenever', :require => false
 gem 'gpgme'
+gem 'daemons'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -43,4 +44,5 @@ group :development do
   gem 'capistrano-rvm'
   gem 'capistrano-puma'
   gem 'capistrano-linked-files'
+  gem 'capistrano3-delayed-job'
 end
