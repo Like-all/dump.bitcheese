@@ -1,3 +1,5 @@
+require_dependency 'dump'
+
 class DumpedFile < ActiveRecord::Base
 	has_one :frozen_file
 	
@@ -42,6 +44,10 @@ class DumpedFile < ActiveRecord::Base
 			file_id = SecureRandom.hex(50)
 			FileUtils.cp path, File.join(Settings.glaciate.target, file_id)
 			return file_id
+		when :glacier
+			glacier = Dump.glacier
+			resp = glacier.upload_archive(vault_name: Settings.glacier.vault_name, account_id: "-", body: File.open(path, "rb"))
+			return resp.archive_id
 		end
 	end
 	
@@ -52,6 +58,11 @@ class DumpedFile < ActiveRecord::Base
 			tempname = Dir::Tmpname.make_tmpname "dump", ""
 			FileUtils.cp File.join(Settings.glaciate.target, archive_id), tempname
 			return tempname
+		when :glacier
+			glacier = Dump.glacier
+			tempname = Dir::Tmpname.make_tmpname "dump", ""
+			glacier.get_job_output(account_id: "-", vault_name: Settings.glacier.vault_name, job_id: archive_id, response_target: tempname)
+			return tempname
 		end
 	end
 	
@@ -61,7 +72,7 @@ class DumpedFile < ActiveRecord::Base
 		crypto = GPGME::Crypto.new(password: Settings.gpg.passphrase, pinentry_mode: GPGME::PINENTRY_MODE_LOOPBACK)
 		tmpfile = Tempfile.new("dump", encoding: 'ascii-8bit')
 		okay = false
-		crypto.verify(archive, output: tmpfile){ |sig| okay |= (sig.key.fingerprint == Settings.gpg.key_id && sig.valid?) }
+		crypto.decrypt(archive, output: tmpfile){ |sig| okay |= (sig.key.fingerprint == Settings.gpg.key_id && sig.valid?) }
 		raise "Archive verification failed: #{path}!" unless okay
 		tmpfile.rewind
 		fname = tmpfile.read.split("\0")[0]
