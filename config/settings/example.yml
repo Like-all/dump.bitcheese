@@ -14,7 +14,7 @@ glaciate:
   # Directory for :cp
   target: /var/dumper/freezer
 gpg:
-  # long fingerprint of used gpg key
+  # keygrip of used gpg key
   # must be available for gpg2
   key_id: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   # passphrase of said key
