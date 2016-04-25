@@ -47,7 +47,7 @@ server {
 	}
 }
 
-p.Allow loopback passphrase entry to stupid gpg:
+p. Allow loopback passphrase entry to stupid gpg:
 
 bc. echo allow-loopback-pinentry >> ~/.gnupg/gpg-agent.conf
 
