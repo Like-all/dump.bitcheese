@@ -1,6 +1,6 @@
 <h1>503 Thawing</h1>
 
-<img src="//dump.bitcheese.net/images/thawin.png" style="align: center" alt="Your data being thawed" />
+<img src="//dump.bitcheese.net/images/thawin.png" style="text-align: center" alt="Your data being thawed" />
 
 <p>
 This file have been not requested for a long time and have been placed into cold storage. It is being thawed since <%= @thaw_request.created_at %> and will be available in approximately <%= distance_of_time_in_words(Settings.average_thawing_time.to_i.hours - (DateTime.now - @thaw_request.created_at.to_datetime)*24*3600) %>. Please check back then.
