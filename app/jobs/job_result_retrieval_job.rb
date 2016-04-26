@@ -10,7 +10,7 @@ class JobResultRetrievalJob < ActiveJob::Base
 			path = DumpedFile.download_archive(job_id)
 			DumpedFile.install_archive(path, dumped_file.filename, dumped_file.file_path)
 		else
-			JobResultRetrievalJob.delay(run_at: 1.hours.from_now).perform_later(job_id)
+			JobResultRetrievalJob.delay(run_at: 1.hours.from_now).perform_later(dumped_file, job_id)
 		end
   end
 end
