@@ -3,7 +3,15 @@
 <p style="text-align: center"> <img src="//dump.bitcheese.net/images/thawin.png"  alt="Your data being thawed" /> </p>
 
 <p>
-This file have been not requested for a long time and have been placed into cold storage. It is being thawed since <%= @thaw_request.created_at %> and will be available in approximately <%= distance_of_time_in_words(Settings.average_thawing_time.to_i.hours - (DateTime.now - @thaw_request.created_at.to_datetime)*24*3600) %>. Please check back then.
+This file have been not requested for a long time and have been placed into cold storage. It is being thawed since <%= @thaw_request.created_at %> and 
+<%
+	distance = Settings.average_thawing_time.to_i.hours - (DateTime.now - @thaw_request.created_at.to_datetime)*24*3600
+  if distance > 0
+  %>
+will be available in approximately <%= distance_of_time_in_words(distance) %>. Please check back then.
+<% else %>
+	should  already be here... weird.
+<% end %>
 </p>
 
 <p> If file is still not available by then, please <a href="<%= Settings.contact_url %>">report the issue</a>. </p>
