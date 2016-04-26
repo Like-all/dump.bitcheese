@@ -77,7 +77,7 @@ class DumpedFile < ActiveRecord::Base
 		tmpfile.rewind
 		fname = tmpfile.read.split("\0")[0].force_encoding("UTF-8")
 		raise "Not the same file found in archive #{path}: #{fname} vs #{filename}!" if fname != filename
-		tmpfile.seek(fname.size+1)
+		tmpfile.seek(fname.bytesize+1)
 		File.open(target_path,"wb") do |f| f.write tmpfile.read end
 		tmpfile.close
 		tmpfile.unlink
