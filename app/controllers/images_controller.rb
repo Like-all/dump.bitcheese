@@ -53,14 +53,8 @@ class ImagesController < ApplicationController
 		f = DumpedFile.find_or_initialize_by(filename: fname)
 		
 		if !File.exists?(filename) && f.file_frozen
-			if DumpedFile.find_by(filename: fname, file_frozen: true)
-				unless @thaw_request = ThawRequest.find_by(filename: fname, finished: false)
-					@thaw_request = ThawRequest.new(filename: fname, referer: Referer.mkreferer(request.referer), size: f.size, user_agent: UserAgent.mkagent(request.user_agent), ip: request.remote_ip)
-					@thaw_request.save!
-					FileRetrievalJob.perform_later(f)
-				end
-				return(render('files/thawin', status: 503))
-			end
+			@thaw_request = f.thaw!(request)
+			return(render('files/thawin', status: 503))
 		elsif f.file_frozen
 			f.mark_thawed!
 			ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
@@ -91,14 +85,8 @@ class ImagesController < ApplicationController
 		f = DumpedFile.find_or_initialize_by(filename: fname)
 		
 		if !File.exists?(filename) && f.file_frozen
-			if DumpedFile.find_by(filename: fname, file_frozen: true)
-				unless @thaw_request = ThawRequest.find_by(filename: fname, finished: false)
-					@thaw_request = ThawRequest.new(filename: fname, referer: Referer.mkreferer(request.referer), size: f.size, user_agent: UserAgent.mkagent(request.user_agent), ip: request.remote_ip)
-					@thaw_request.save!
-					FileRetrievalJob.perform_later(f)
-				end
-				return(render('files/thawin', status: 503))
-			end
+			@thaw_request = f.thaw!(request)
+			return(render('files/thawin', status: 503))
 		elsif f.file_frozen
 			f.mark_thawed!
 			ThawRequest.where(filename: fname, finished: false).update_all(finished: true)

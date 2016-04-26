@@ -3,14 +3,19 @@
 <p style="text-align: center"> <img src="//dump.bitcheese.net/images/thawin.png"  alt="Your data being thawed" /> </p>
 
 <p>
-This file have been not requested for a long time and have been placed into cold storage. It is being thawed since <%= @thaw_request.created_at %> and 
-<%
-	distance = Settings.average_thawing_time.to_i.hours - (DateTime.now - @thaw_request.created_at.to_datetime)*24*3600
-  if distance > 0
-  %>
-will be available in approximately <%= distance_of_time_in_words(distance) %>. Please check back then.
+This file have been not requested for a long time and have been placed into cold storage. 
+<% if @thaw_request.is_a? ThawRequest %>
+	It is being thawed since <%= @thaw_request.created_at %> and 
+	<%
+		distance = Settings.average_thawing_time.to_i.hours - (DateTime.now - @thaw_request.created_at.to_datetime)*24*3600
+		if distance > 0
+		%>
+	will be available in approximately <%= distance_of_time_in_words(distance) %>. Please check back then.
+	<% else %>
+		should  already be here... weird.
+	<% end %>
 <% else %>
-	should  already be here... weird.
+	Thaw quota for today is exhausted, so we will not be thawing it for you today, sorry. Come back after 24 hours.
 <% end %>
 </p>
 
