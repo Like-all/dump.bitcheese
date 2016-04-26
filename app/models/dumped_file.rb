@@ -87,7 +87,11 @@ class DumpedFile < ActiveRecord::Base
 		crypto.decrypt(archive, output: tmpfile){ |sig| okay |= (sig.key.fingerprint == Settings.gpg.key_id && sig.valid?) }
 		raise "Archive verification failed: #{path}!" unless okay
 		tmpfile.rewind
-		fname = tmpfile.read.split("\0")[0].force_encoding("UTF-8")
+		fname = "".force_encoding('ascii-8bit')
+		while fname.size < 256 && (nch = tmpfile.readchar).ord != 0
+			fname << nch
+		end
+		fname = fname.force_encoding("UTF-8")
 		raise "Not the same file found in archive #{path}: #{fname} vs #{filename}!" if fname != filename
 		tmpfile.seek(fname.bytesize+1)
 		File.open(target_path,"wb") do |f| f.write tmpfile.read end
