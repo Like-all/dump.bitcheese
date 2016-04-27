@@ -24,4 +24,12 @@ class Dump
 	def self.glacier
 		Aws::Glacier::Client.new(access_key_id: Settings.glacier.access_key_id, secret_access_key: Settings.glacier.secret_access_key, region: Settings.glacier.region)
 	end
+	
+	def self.get_upload_permission
+		Upload.where("created_at > ?", DateTime.now - 1.day).sum(:size) < Settings.daily_upload_limit
+	end
+	
+	def self.get_thaw_permission
+		ThawRequest.where("created_at > ?", DateTime.now - 1.day).sum(:size) < Settings.daily_thaw_limit
+	end
 end

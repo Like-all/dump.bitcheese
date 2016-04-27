@@ -17,6 +17,7 @@ gem 'delayed_job_active_record'
 gem 'whenever', :require => false
 gem 'gpgme'
 gem 'daemons'
+gem 'simple_captcha2', require: 'simple_captcha'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

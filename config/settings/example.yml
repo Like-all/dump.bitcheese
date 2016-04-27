@@ -8,15 +8,15 @@ dir: /var/dumper/static
 key_size: 7
 # Password to access admin area
 stats_password: qwerty
+# Max size of files uploaded daily, in bytes. Beyond that captcha is asked.
+daily_upload_limit: 1_000_000_000
+# Max size of files to be thawed in a day, in bytes
+daily_thaw_limit: 1_000_000_000
 glaciate:
   # Way to freeze the files. Options: :glacier -- uploads to Amazon Glacier, :cp -- copies to some directory
   way: :glacier
   # Directory for :cp
   target: /var/dumper/freezer
-  # Max size of files to be thawed in a day, in bytes
-  thaw_limit: 5000000000
-  # Per-ip thaw limit
-  ip_thaw_limit: 200000000
 gpg:
   # keygrip of used gpg key
   # must be available for gpg2

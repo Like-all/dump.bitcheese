@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160424203047) do
+ActiveRecord::Schema.define(version: 20160426192505) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -76,6 +76,15 @@ ActiveRecord::Schema.define(version: 20160424203047) do
   end
 
   add_index "referers", ["referer_string"], name: "index_referers_on_referer_string", unique: true, using: :btree
+
+  create_table "simple_captcha_data", force: :cascade do |t|
+    t.string   "key",        limit: 40
+    t.string   "value",      limit: 6
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "simple_captcha_data", ["key"], name: "idx_key", using: :btree
 
   create_table "thaw_requests", force: :cascade do |t|
     t.string   "filename"

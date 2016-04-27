@@ -3,7 +3,10 @@ require_dependency 'dump'
 class FilesController < ApplicationController
 	def upload
 		uploaded = params[:file]
-		if !uploaded.is_a? ActionDispatch::Http::UploadedFile
+		if !Dump.get_upload_permission && !simple_captcha_valid?
+			flash[:error] = "Please input correct captcha"
+			redirect_to root_url
+		elsif !uploaded.is_a? ActionDispatch::Http::UploadedFile
 			flash[:error] = "This is not a file"
 			redirect_to root_url
 		elsif uploaded.size > Settings.max_file_size

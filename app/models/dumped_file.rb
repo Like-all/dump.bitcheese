@@ -32,9 +32,7 @@ class DumpedFile < ActiveRecord::Base
 		if tr = ThawRequest.find_by(filename: self.filename, finished: false)
 			return tr
 		end
-		requests_today = ThawRequest.where("created_at > ?", DateTime.now - 1.day).sum(:size)
-		ip_requests_today = ThawRequest.where("created_at > ? AND ip = ?", DateTime.now - 1.day, request.remote_ip).sum(:size)
-		if requests_today < Settings.glaciate.thaw_limit && ip_requests_today < Settings.glaciate.ip_thaw_limit
+		if Dump.get_thaw_permission
 			thaw_request = ThawRequest.new(filename: self.filename, referer: Referer.mkreferer(request.referer), size: self.size, user_agent: UserAgent.mkagent(request.user_agent), ip: request.remote_ip)
 			FileRetrievalJob.perform_later(self)
 			thaw_request.save!
