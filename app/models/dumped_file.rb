@@ -24,6 +24,9 @@ class DumpedFile < ActiveRecord::Base
 		self.file_frozen = true
 		self.save!
 		FileUtils.rm self.file_path
+		out_tmp.unlink
+		in_tmp.close
+		in_tmp.unlink
 		FileFreeze.new(filename: self.filename, size: self.size).save!
 	end
 	
