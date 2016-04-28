@@ -19,16 +19,18 @@ class FilesController < ApplicationController
 			FileUtils.mkdir_p File.join(Settings.dir, "files", file_key)
 			File.open(file_name, "wb") do |f| f.write uploaded.read end
 			# Success! Log it.
-			u = Upload.new
-			u.ip = request.remote_ip
-			u.filename = File.join("files", file_key, cleaned_name)
-			u.user_agent = UserAgent.mkagent(request.user_agent)
-			u.size = uploaded.size
-			u.save!
-			f = DumpedFile.find_or_initialize_by(filename: u.filename)
-			f.size = uploaded.size
-			f.accessed_at = DateTime.now
-			f.save!
+			Upload.transaction do
+				u = Upload.new
+				u.ip = request.remote_ip
+				u.filename = File.join("files", file_key, cleaned_name)
+				u.user_agent = UserAgent.mkagent(request.user_agent)
+				u.size = uploaded.size
+				u.save!
+				f = DumpedFile.find_or_initialize_by(filename: u.filename)
+				f.size = uploaded.size
+				f.accessed_at = DateTime.now
+				f.save!
+			end
 			if request.query_string == "simple"
 				render plain: url_for(controller: "files", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
 			else
@@ -56,19 +58,21 @@ class FilesController < ApplicationController
 		elsif !File.exists?(filename) 
 			raise ActionController::RoutingError.new('Not Found')
 		end
-		if !request.referer.to_s.start_with?(root_url(only_path: false))
-			u = Download.new
-			u.ip = request.remote_ip
-			u.filename = fname
-			u.user_agent = UserAgent.mkagent(request.user_agent)
-			u.referer = Referer.mkreferer(request.referer)
-			u.size = File.size(filename)
-			u.save!
+		Download.transaction do
+			if !request.referer.to_s.start_with?(root_url(only_path: false))
+				u = Download.new
+				u.ip = request.remote_ip
+				u.filename = fname
+				u.user_agent = UserAgent.mkagent(request.user_agent)
+				u.referer = Referer.mkreferer(request.referer)
+				u.size = File.size(filename)
+				u.save!
+			end
+			
+			f.size = File.size(filename)
+			f.accessed_at = DateTime.now
+			f.save!
 		end
-		
-		f.size = File.size(filename)
-		f.accessed_at = DateTime.now
-		f.save!
 		send_file filename, x_sendfile: true, disposition: "inline", type: Dump.get_content_type(filename)
 	end
 end

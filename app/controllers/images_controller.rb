@@ -24,16 +24,18 @@ class ImagesController < ApplicationController
 			FileUtils.mkdir_p File.join(Settings.dir, "images", file_key)
 			File.open(file_name, "wb") do |f| f.write uploaded.read end
 			# Success! Log it.
-			u = Upload.new
-			u.ip = request.remote_ip
-			u.filename = File.join("images", file_key, cleaned_name)
-			u.user_agent = UserAgent.mkagent(request.user_agent)
-			u.size = uploaded.size
-			u.save!
-			f = DumpedFile.find_or_initialize_by(filename: u.filename)
-			f.size = uploaded.size
-			f.accessed_at = DateTime.now
-			f.save!
+			Upload.transaction do
+				u = Upload.new
+				u.ip = request.remote_ip
+				u.filename = File.join("images", file_key, cleaned_name)
+				u.user_agent = UserAgent.mkagent(request.user_agent)
+				u.size = uploaded.size
+				u.save!
+				f = DumpedFile.find_or_initialize_by(filename: u.filename)
+				f.size = uploaded.size
+				f.accessed_at = DateTime.now
+				f.save!
+			end
 			if request.query_string == "simple"
 				render plain: url_for(controller: "images", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
 			else
@@ -64,18 +66,19 @@ class ImagesController < ApplicationController
 		elsif !File.exists?(filename) 
 			raise ActionController::RoutingError.new('Not Found')
 		end
-		
-		u = Download.new
-		u.ip = request.remote_ip
-		u.filename = fname
-		u.user_agent = UserAgent.mkagent(request.user_agent)
-		u.referer = Referer.mkreferer(request.referer)
-		u.size = File.size(filename)
-		u.save!
-		
-		f.size = File.size(filename)
-		f.accessed_at = DateTime.now
-		f.save!
+		Download.transaction do
+			u = Download.new
+			u.ip = request.remote_ip
+			u.filename = fname
+			u.user_agent = UserAgent.mkagent(request.user_agent)
+			u.referer = Referer.mkreferer(request.referer)
+			u.size = File.size(filename)
+			u.save!
+			
+			f.size = File.size(filename)
+			f.accessed_at = DateTime.now
+			f.save!
+		end
 		send_file filename, x_sendfile: true, disposition: "inline", type: Dump.get_content_type(filename)
 	end
 	
@@ -104,19 +107,21 @@ class ImagesController < ApplicationController
 			FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
 			image.write(thumb_name)
 		end
-		if !request.referer.to_s.start_with?(root_url(only_path: false))
-			u = Download.new
-			u.ip = request.remote_ip
-			u.filename = File.join("images", Dump.clean_name(params[:slug].to_s), "thumb", Dump.clean_name(params[:filename]))
-			u.user_agent = UserAgent.mkagent(request.user_agent)
-			u.referer = Referer.mkreferer(request.referer)
-			u.size = File.size(filename)
-			u.save!
+		Download.transaction do
+			if !request.referer.to_s.start_with?(root_url(only_path: false))
+				u = Download.new
+				u.ip = request.remote_ip
+				u.filename = File.join("images", Dump.clean_name(params[:slug].to_s), "thumb", Dump.clean_name(params[:filename]))
+				u.user_agent = UserAgent.mkagent(request.user_agent)
+				u.referer = Referer.mkreferer(request.referer)
+				u.size = File.size(filename)
+				u.save!
+			end
+			
+			f.size = File.size(filename)
+			f.accessed_at = DateTime.now
+			f.save!
 		end
-		
-		f.size = File.size(filename)
-		f.accessed_at = DateTime.now
-		f.save!
 		send_file thumb_name, x_sendfile: true, disposition: "inline", type: Dump.get_content_type(thumb_name)
 	end
 end
