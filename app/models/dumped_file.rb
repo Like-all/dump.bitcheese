@@ -24,6 +24,7 @@ class DumpedFile < ActiveRecord::Base
 		self.file_frozen = true
 		self.save!
 		FileUtils.rm self.file_path
+		FileFreeze.new(filename: self.filename, size: self.size).save!
 	end
 	
 	# Maybe add job to retrieve the file from cold storage
