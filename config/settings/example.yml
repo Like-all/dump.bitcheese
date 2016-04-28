@@ -12,6 +12,8 @@ stats_password: qwerty
 daily_upload_limit: 1_000_000_000
 # Max size of files to be thawed in a day, in bytes
 daily_thaw_limit: 1_000_000_000
+# Max size of tracked files, excess will be glaciated
+storage_limit: 2_000_000_000
 glaciate:
   # Way to freeze the files. Options: :glacier -- uploads to Amazon Glacier, :cp -- copies to some directory
   way: :glacier
