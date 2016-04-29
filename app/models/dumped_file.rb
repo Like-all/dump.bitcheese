@@ -107,5 +107,9 @@ class DumpedFile < ActiveRecord::Base
 		end
 		tmpfile.close
 		tmpfile.unlink
+		df = DumpedFile.find_by(filename: filename)
+		df.mark_thawed!
+		df.save!
+		ThawRequest.where(filename: filename, finished: false).update_all(finished: true)
 	end
 end
