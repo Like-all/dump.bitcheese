@@ -13,7 +13,11 @@ class DumpedFile < ActiveRecord::Base
 		in_tmp = Tempfile.new("dump", encoding: 'ascii-8bit')
 		in_tmp.write(self.filename)
 		in_tmp.write("\0")
-		in_tmp.write(File.read(self.file_path, mode: "rb"))
+		File.open(self.file_path, mode: "rb") do |f|
+			until f.eof?
+				in_tmp.write f.read(1e6)
+			end
+		end
 		in_tmp.flush
 		in_tmp.rewind
 		crypto = GPGME::Crypto.new(password: Settings.gpg.passphrase, pinentry_mode: GPGME::PINENTRY_MODE_LOOPBACK)
@@ -96,7 +100,10 @@ class DumpedFile < ActiveRecord::Base
 		fname = fname.force_encoding("UTF-8")
 		raise "Not the same file found in archive #{path}: #{fname} vs #{filename}!" if fname != filename
 		tmpfile.seek(fname.bytesize+1)
-		File.open(target_path,"wb") do |f| f.write tmpfile.read end
+		File.open(target_path,"wb") do |f|
+			until tmpfile.eof?
+				f.write tmpfile.read(1e6)
+			end
 		tmpfile.close
 		tmpfile.unlink
 	end
