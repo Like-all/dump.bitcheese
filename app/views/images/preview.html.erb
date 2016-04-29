@@ -1,3 +1,4 @@
+<% content_for :title, "image preview: #{@filename}" %>
 <a href="<%= @image_path %>"><img src="<%= @thumb_path %>" alt="Your image" /></a> <%= number_to_human_size @size %>
 <table>
 <tr>
