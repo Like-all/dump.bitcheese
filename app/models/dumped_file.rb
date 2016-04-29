@@ -104,6 +104,7 @@ class DumpedFile < ActiveRecord::Base
 			until tmpfile.eof?
 				f.write tmpfile.read(1e6)
 			end
+		end
 		tmpfile.close
 		tmpfile.unlink
 	end
