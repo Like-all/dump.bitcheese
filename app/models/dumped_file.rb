@@ -9,8 +9,8 @@ class DumpedFile < ActiveRecord::Base
 	
 	def glaciate!
 		return false if self.file_frozen?
-		out_tmp = Tempfile.new("dump", encoding: 'ascii-8bit')
-		in_tmp = Tempfile.new("dump", encoding: 'ascii-8bit')
+		out_tmp = Tempfile.new("dump_ep", encoding: 'ascii-8bit')
+		in_tmp = Tempfile.new("dump_ec", encoding: 'ascii-8bit')
 		in_tmp.write(self.filename)
 		in_tmp.write("\0")
 		File.open(self.file_path, mode: "rb") do |f|
@@ -73,12 +73,12 @@ class DumpedFile < ActiveRecord::Base
 	def self.download_archive(archive_id)
 		case Settings.glaciate.way
 		when :cp
-			tempname = Dir::Tmpname.make_tmpname "dump", ""
+			tempname = Dir::Tmpname.make_tmpname "dump_da", ""
 			FileUtils.cp File.join(Settings.glaciate.target, archive_id), tempname
 			return tempname
 		when :glacier
 			glacier = Dump.glacier
-			tempname = Dir::Tmpname.make_tmpname "dump", ""
+			tempname = Dir::Tmpname.make_tmpname "dump_da", ""
 			glacier.get_job_output(account_id: "-", vault_name: Settings.glacier.vault_name, job_id: archive_id, response_target: tempname)
 			return tempname
 		end
@@ -88,7 +88,7 @@ class DumpedFile < ActiveRecord::Base
 	def self.install_archive(path, filename, target_path)
 		archive = File.open(path, "rb")
 		crypto = GPGME::Crypto.new(password: Settings.gpg.passphrase, pinentry_mode: GPGME::PINENTRY_MODE_LOOPBACK)
-		tmpfile = Tempfile.new("dump", encoding: 'ascii-8bit')
+		tmpfile = Tempfile.new("dump_di", encoding: 'ascii-8bit')
 		okay = false
 		crypto.decrypt(archive, output: tmpfile){ |sig| okay |= (sig.key.fingerprint == Settings.gpg.key_id && sig.valid?) }
 		raise "Archive verification failed: #{path}!" unless okay
