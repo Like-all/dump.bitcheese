@@ -41,10 +41,13 @@ class DumpedFile < ActiveRecord::Base
 			return tr
 		end
 		if Dump.get_thaw_permission
-			thaw_request = ThawRequest.new(filename: self.filename, referer: Referer.mkreferer(request.referer), size: self.size, user_agent: UserAgent.mkagent(request.user_agent), ip: request.remote_ip)
-			FileRetrievalJob.perform_later(self)
-			thaw_request.save!
-			return thaw_request
+			ThawRequest.transaction do
+				ActiveRecord::Base.connection.execute('LOCK TABLE user_agents,referers IN SHARE MODE')
+				thaw_request = ThawRequest.new(filename: self.filename, referer: Referer.find_or_initialize_by(referer_string: request.referer), size: self.size, user_agent: UserAgent.find_or_initialize_by(user_agent_string: request.user_agent), ip: request.remote_ip)
+				thaw_request.save!
+				FileRetrievalJob.perform_later(self)
+				return thaw_request
+			end
 		else
 			return :not_thawing
 		end

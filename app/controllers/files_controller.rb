@@ -23,7 +23,8 @@ class FilesController < ApplicationController
 				u = Upload.new
 				u.ip = request.remote_ip
 				u.filename = File.join("files", file_key, cleaned_name)
-				u.user_agent = UserAgent.mkagent(request.user_agent)
+				ActiveRecord::Base.connection.execute('LOCK TABLE user_agents IN SHARE MODE')
+				u.user_agent = UserAgent.find_or_initialize_by(user_agent_string: request.user_agent)
 				u.size = uploaded.size
 				u.save!
 				f = DumpedFile.find_or_initialize_by(filename: u.filename)
@@ -63,8 +64,9 @@ class FilesController < ApplicationController
 				u = Download.new
 				u.ip = request.remote_ip
 				u.filename = fname
-				u.user_agent = UserAgent.mkagent(request.user_agent)
-				u.referer = Referer.mkreferer(request.referer)
+				ActiveRecord::Base.connection.execute('LOCK TABLE user_agents,referers IN SHARE MODE')
+				u.user_agent = UserAgent.find_or_initialize_by(user_agent_string: request.user_agent)
+				u.referer = Referer.find_or_initialize_by(referer_string: request.referer)
 				u.size = File.size(filename)
 				u.save!
 			end
