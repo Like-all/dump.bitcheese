@@ -110,6 +110,7 @@ class DumpedFile < ActiveRecord::Base
 		end
 		tmpfile.close
 		tmpfile.unlink
+		FileUtils.rm path
 		df = DumpedFile.find_by(filename: filename)
 		df.mark_thawed!
 		df.save!
