@@ -2,6 +2,7 @@ require_dependency 'dump'
 
 class ImagesController < ApplicationController
 	def upload
+		raise ActionController::RoutingError.new('Not Found')
 		uploaded = params[:file]
 		if !Dump.get_upload_permission && !simple_captcha_valid?
 			flash[:error] = "Please input correct captcha"
@@ -104,6 +105,7 @@ class ImagesController < ApplicationController
 		end
 		
 		if !File.exists? thumb_name
+			raise ActionController::RoutingError.new('Not Found')
 			# Create thumb
 			image = Magick::ImageList.new(filename)
 			image.resize_to_fit!(Settings.thumb_width, Settings.thumb_height)
