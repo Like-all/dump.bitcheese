@@ -2,7 +2,7 @@ require_dependency 'dump'
 
 class ImagesController < ApplicationController
 	def upload
-		raise ActionController::RoutingError.new('Not Found')
+		return not_found
 		uploaded = params[:file]
 		if !Dump.get_upload_permission && !simple_captcha_valid?
 			flash[:error] = "Please input correct captcha"
@@ -68,7 +68,7 @@ class ImagesController < ApplicationController
 				f.mark_thawed!
 				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
 			elsif !File.exists?(filename) 
-				raise ActionController::RoutingError.new('Not Found')
+				return not_found
 			end
 				u = Download.new
 				u.ip = request.remote_ip
@@ -88,7 +88,7 @@ class ImagesController < ApplicationController
 	def thumb
 		filename = "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}"
 		fname = File.join("images", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
-		raise ActionController::RoutingError.new('Not Found') unless File.exists? filename
+		return not_found unless File.exists? filename
 		thumb_name = "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb/#{Dump.clean_name(params[:filename])}"
 		Download.transaction do
 			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
@@ -101,11 +101,11 @@ class ImagesController < ApplicationController
 				f.mark_thawed!
 				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
 			elsif !File.exists?(filename) 
-				raise ActionController::RoutingError.new('Not Found')
+				return not_found
 			end
 			
 			if !File.exists? thumb_name
-				raise ActionController::RoutingError.new('Not Found')
+				return not_found
 				# Create thumb
 				image = Magick::ImageList.new(filename)
 				image.resize_to_fit!(Settings.thumb_width, Settings.thumb_height)

@@ -59,7 +59,7 @@ class FilesController < ApplicationController
 				f.mark_thawed!
 				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
 			elsif !File.exists?(filename) 
-				raise ActionController::RoutingError.new('Not Found')
+				return not_found
 			end
 			if !request.referer.to_s.start_with?(root_url(only_path: false))
 				u = Download.new

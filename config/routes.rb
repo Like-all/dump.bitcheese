@@ -21,10 +21,10 @@ Rails.application.routes.draw do
 	post 'upload-file', to: 'files#upload'
 	post 'upload-image', to: 'images#upload'
 	
-	match '/404', to: 'errors#not_found', via: :all
+	match '/404', to: 'application#not_found', via: :all
 	match '/422', to: 'errors#unprocessable', via: :all
-	match '/500', to: 'errors#internal_error', via: :all
-
+	match '/500', to: 'application#internal_error', via: :all
+	match '*path', via: :all, to: 'application#not_found'
 	# /
 	# Example of regular route:
 	#   get 'products/:id' => 'catalog#view'
