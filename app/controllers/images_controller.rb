@@ -26,11 +26,11 @@ class ImagesController < ApplicationController
 			File.open(file_name, "wb") do |f| f.write uploaded.read end
 			# Success! Log it.
 			Upload.transaction do
+				ActiveRecord::Base.connection.execute("LOCK TABLE uploads, user_agents, dumped_files IN SHARE ROW EXCLUSIVE MODE")
 				u = Upload.new
 				u.ip = request.remote_ip
 				u.filename = File.join("images", file_key, cleaned_name)
 				u.user_agent = UserAgent.find_or_create_by(user_agent_string: request.user_agent)
-				u.referer = Referer.find_or_create_by(referer_string: request.referer)
 				u.size = uploaded.size
 				u.save!
 				f = DumpedFile.find_or_initialize_by(filename: u.filename)
@@ -57,29 +57,30 @@ class ImagesController < ApplicationController
 	def download
 		filename = File.join(Settings.dir, "images", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
 		fname = File.join("images", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
-		f = DumpedFile.find_or_initialize_by(filename: fname)
-		
-		if !File.exists?(filename) && f.file_frozen
-			@thaw_request = f.thaw!(request)
-			return(render('files/thawin', status: 503))
-		elsif f.file_frozen
-			f.mark_thawed!
-			ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
-		elsif !File.exists?(filename) 
-			raise ActionController::RoutingError.new('Not Found')
-		end
 		Download.transaction do
-			u = Download.new
-			u.ip = request.remote_ip
-			u.filename = fname
-			u.user_agent = UserAgent.find_or_create_by(user_agent_string: request.user_agent)
-			u.referer = Referer.find_or_create_by(referer_string: request.referer)
-			u.size = File.size(filename)
-			u.save!
+			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
+			f = DumpedFile.find_or_initialize_by(filename: fname)
 			
-			f.size = File.size(filename)
-			f.accessed_at = DateTime.now
-			f.save!
+			if !File.exists?(filename) && f.file_frozen
+				@thaw_request = f.thaw!(request)
+				return(render('files/thawin', status: 503))
+			elsif f.file_frozen
+				f.mark_thawed!
+				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
+			elsif !File.exists?(filename) 
+				raise ActionController::RoutingError.new('Not Found')
+			end
+				u = Download.new
+				u.ip = request.remote_ip
+				u.filename = fname
+				u.user_agent = UserAgent.find_or_create_by(user_agent_string: request.user_agent)
+				u.referer = Referer.find_or_create_by(referer_string: request.referer)
+				u.size = File.size(filename)
+				u.save!
+				
+				f.size = File.size(filename)
+				f.accessed_at = DateTime.now
+				f.save!
 		end
 		send_file filename, x_sendfile: true, disposition: "inline", type: Dump.get_content_type(filename)
 	end
@@ -89,28 +90,29 @@ class ImagesController < ApplicationController
 		fname = File.join("images", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
 		raise ActionController::RoutingError.new('Not Found') unless File.exists? filename
 		thumb_name = "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb/#{Dump.clean_name(params[:filename])}"
-		
-		f = DumpedFile.find_or_initialize_by(filename: fname)
-		
-		if !File.exists?(filename) && f.file_frozen
-			@thaw_request = f.thaw!(request)
-			return(render('files/thawin', status: 503))
-		elsif f.file_frozen
-			f.mark_thawed!
-			ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
-		elsif !File.exists?(filename) 
-			raise ActionController::RoutingError.new('Not Found')
-		end
-		
-		if !File.exists? thumb_name
-			raise ActionController::RoutingError.new('Not Found')
-			# Create thumb
-			image = Magick::ImageList.new(filename)
-			image.resize_to_fit!(Settings.thumb_width, Settings.thumb_height)
-			FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
-			image.write(thumb_name)
-		end
 		Download.transaction do
+			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
+			f = DumpedFile.find_or_initialize_by(filename: fname)
+			
+			if !File.exists?(filename) && f.file_frozen
+				@thaw_request = f.thaw!(request)
+				return(render('files/thawin', status: 503))
+			elsif f.file_frozen
+				f.mark_thawed!
+				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
+			elsif !File.exists?(filename) 
+				raise ActionController::RoutingError.new('Not Found')
+			end
+			
+			if !File.exists? thumb_name
+				raise ActionController::RoutingError.new('Not Found')
+				# Create thumb
+				image = Magick::ImageList.new(filename)
+				image.resize_to_fit!(Settings.thumb_width, Settings.thumb_height)
+				FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
+				image.write(thumb_name)
+			end
+		
 			if !request.referer.to_s.start_with?(root_url(only_path: false))
 				u = Download.new
 				u.ip = request.remote_ip

@@ -20,6 +20,7 @@ class FilesController < ApplicationController
 			File.open(file_name, "wb") do |f| f.write uploaded.read end
 			# Success! Log it.
 			Upload.transaction do
+				ActiveRecord::Base.connection.execute("LOCK TABLE uploads, user_agents, dumped_files IN SHARE ROW EXCLUSIVE MODE")
 				u = Upload.new
 				u.ip = request.remote_ip
 				u.filename = File.join("files", file_key, cleaned_name)
@@ -48,17 +49,18 @@ class FilesController < ApplicationController
 	def download
 		fname = File.join("files", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
 		filename = File.join(Settings.dir, "files",Dump.clean_name(params[:slug].to_s),Dump.clean_name(params[:filename]))
-		f = DumpedFile.find_or_initialize_by(filename: fname)
-		if !File.exists?(filename) && f.file_frozen
-			@thaw_request = f.thaw!(request)
-			return(render('files/thawin', status: 503))
-		elsif f.file_frozen
-			f.mark_thawed!
-			ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
-		elsif !File.exists?(filename) 
-			raise ActionController::RoutingError.new('Not Found')
-		end
 		Download.transaction do
+			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
+			f = DumpedFile.find_or_initialize_by(filename: fname)
+			if !File.exists?(filename) && f.file_frozen
+				@thaw_request = f.thaw!(request)
+				return(render('files/thawin', status: 503))
+			elsif f.file_frozen
+				f.mark_thawed!
+				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
+			elsif !File.exists?(filename) 
+				raise ActionController::RoutingError.new('Not Found')
+			end
 			if !request.referer.to_s.start_with?(root_url(only_path: false))
 				u = Download.new
 				u.ip = request.remote_ip

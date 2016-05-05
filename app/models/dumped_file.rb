@@ -41,12 +41,10 @@ class DumpedFile < ActiveRecord::Base
 			return tr
 		end
 		if Dump.get_thaw_permission
-			ThawRequest.transaction do
-				thaw_request = ThawRequest.new(filename: self.filename, referer: Referer.find_or_create_by(referer_string: request.referer), size: self.size, user_agent: UserAgent.find_or_create_by(user_agent_string: request.user_agent), ip: request.remote_ip)
-				thaw_request.save!
-				FileRetrievalJob.perform_later(self)
-				return thaw_request
-			end
+			thaw_request = ThawRequest.new(filename: self.filename, referer: Referer.find_or_create_by(referer_string: request.referer), size: self.size, user_agent: UserAgent.find_or_create_by(user_agent_string: request.user_agent), ip: request.remote_ip)
+			thaw_request.save!
+			FileRetrievalJob.perform_later(self)
+			return thaw_request
 		else
 			return :not_thawing
 		end
