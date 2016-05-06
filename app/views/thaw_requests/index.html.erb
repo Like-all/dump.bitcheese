@@ -8,7 +8,7 @@
 <td class="<%= filesize_to_style tr.size %>"><%= number_to_human_size tr.size, prefix: :si %></td>
 <td><%= tr.ip %></td>
 <td><%= tr.created_at.strftime("%H:%M:%S %d.%m.%y") %>
-<td><%= trunc_title(tr.referer.referer_string) if tr.referer %></td>
+<td><%= link_to(trunc_title(tr.referer.referer_string), tr.referer.referer_string) if tr.referer %></td>
 <td><%= trunc_title(tr.user_agent.user_agent_string) if tr.user_agent %></td>
 </tr>
 <% end %>
