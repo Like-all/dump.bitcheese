@@ -15,7 +15,7 @@ module ApplicationHelper
 		thawed ? "thawed" : "not-thawed"
 	end
 	
-	def trunc_title(string, len = 100)
+	def trunc_title(string, len = 65)
 		if string.to_s.size < len
 			string
 		else
