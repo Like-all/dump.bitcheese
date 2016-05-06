@@ -1,12 +1,13 @@
 <table>
 <tr>
-<th>filename</th><th>size</th><th>ip</th><th>UA</th>
+<th>filename</th><th>size</th><th>ip</th><th><%=DateTime.now.strftime("%H:%M:%S %d.%m.%y")%></th><th>UA</th>
 </tr>
 <% @uploads.each do |ul| %>
 <tr>
 <td><%= link_to(trunc_title(ul.filename), "/" + ul.filename) %></td>
 <td class="<%= filesize_to_style ul.size %>"><%= number_to_human_size ul.size, prefix: :si %></td>
 <td><%= ul.ip %></td>
+<td><%= ul.created_at.strftime("%H:%M:%S %d.%m.%y") %>
 <td><%= trunc_title(ul.user_agent.user_agent_string, 200) if ul.user_agent %></td>
 </tr>
 <% end %>
