@@ -1,0 +1,14 @@
+<table>
+<tr>
+<th>filename</th><th>size</th><th>ip</th><th>UA</th>
+</tr>
+<% @uploads.each do |ul| %>
+<tr>
+<td><div style="overflow:auto;"><%= link_to(ul.filename, "/" + ul.filename) %></div></td>
+<td class="<%= filesize_to_style ul.size %>"><%= number_to_human_size ul.size, prefix: :si %></td>
+<td><%= ul.ip %></td>
+<td style="width: 30%;"><div style="overflow:auto;"><%= ul.user_agent.user_agent_string if ul.user_agent %></div></td>
+</tr>
+<% end %>
+</table>
+<%= paginate @uploads %>

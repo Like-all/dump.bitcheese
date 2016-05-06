@@ -17,6 +17,9 @@ Rails.application.routes.draw do
 	get 'images/:slug/:filename/preview', to: 'images#preview', slug: slug_template, filename: file_template
 	get 'files/:slug/:filename/preview', to: 'files#preview', slug: slug_template, filename: file_template
 	get 'referers', to: 'referers#index'
+	get 'downloads', to: 'downloads#index'
+	get 'uploads', to: 'uploads#index'
+	get 'thaw-requests', to: 'thaw_requests#index'
 	
 	post 'upload-file', to: 'files#upload'
 	post 'upload-image', to: 'images#upload'

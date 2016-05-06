@@ -92,6 +92,9 @@ GEM
       multi_json (~> 1.2)
     jmespath (1.1.3)
     json (1.8.3)
+    kaminari (0.16.3)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.4)
@@ -193,6 +196,7 @@ DEPENDENCIES
   delayed_job_active_record
   gpgme
   jbuilder (~> 2.0)
+  kaminari
   net-ssh (= 4.0.0.alpha3)
   pg (~> 0.15)
   puma

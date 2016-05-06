@@ -1,0 +1,15 @@
+<table>
+<tr>
+<th>filename</th><th>size</th><th>ip</th><th>referer</th><th>UA</th>
+</tr>
+<% @thaw_requests.each do |tr| %>
+<tr>
+<td class="<%= thawed_to_style tr.finished %>"><div style="overflow:auto;"><%= link_to(tr.filename, "/" + tr.filename) %></div></td>
+<td class="<%= filesize_to_style tr.size %>"><%= number_to_human_size tr.size, prefix: :si %></td>
+<td><%= tr.ip %></td>
+<td style="width: 30%;"><div style="overflow:auto;"><%= tr.referer.referer_string if tr.referer %></div> </td>
+<td style="width: 30%;"><div style="overflow:auto;"><%= tr.user_agent.user_agent_string if tr.user_agent %></div></td>
+</tr>
+<% end %>
+</table>
+<%= paginate @thaw_requests %>
