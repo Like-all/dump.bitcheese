@@ -13,4 +13,11 @@ class ApplicationController < ActionController::Base
   def internal_error
 		render file: "#{Rails.root}/app/views/application/internal_error.html.erb", status: 500
   end
+  
+	def authenticate_admin
+
+		authenticate_or_request_with_http_digest("Statistics") do |username|
+			Settings.stats_password
+		end
+	end
 end

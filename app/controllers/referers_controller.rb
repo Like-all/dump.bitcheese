@@ -1,12 +1,5 @@
 class ReferersController < ApplicationController
-	before_filter :digest_authenticate
-
-	def digest_authenticate
-
-		authenticate_or_request_with_http_digest("Statistics") do |username|
-			Settings.stats_password
-		end
-	end
+	before_filter :authenticate_admin
 	
 	def index
 		@referers = Referer.where({})
