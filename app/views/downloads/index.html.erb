@@ -4,11 +4,11 @@
 </tr>
 <% @downloads.each do |dl| %>
 <tr>
-<td><div style="overflow:auto;"><%= link_to(dl.filename, "/" + dl.filename) %></div></td>
+<td><%= link_to(trunc_title(dl.filename), "/" + dl.filename) %></td>
 <td class="<%= filesize_to_style dl.size %>"><%= number_to_human_size dl.size, prefix: :si %></td>
 <td><%= dl.ip %></td>
-<td style="width: 30%;"><div style="overflow:auto;"><%= dl.referer.referer_string if dl.referer %></div> </td>
-<td style="width: 30%;"><div style="overflow:auto;"><%= dl.user_agent.user_agent_string if dl.user_agent %></div></td>
+<td><%= trunc_title(dl.referer.referer_string) if dl.referer %> </td>
+<td><%= trunc_title(dl.user_agent.user_agent_string) if dl.user_agent %></td>
 </tr>
 <% end %>
 </table>

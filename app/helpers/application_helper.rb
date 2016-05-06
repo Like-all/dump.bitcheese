@@ -14,4 +14,12 @@ module ApplicationHelper
 	def thawed_to_style(thawed)
 		thawed ? "thawed" : "not-thawed"
 	end
+	
+	def trunc_title(string, len = 100)
+		if string.to_s.size < len
+			string
+		else
+			content_tag :span, truncate(string, length: len), title: string
+		end
+	end
 end
