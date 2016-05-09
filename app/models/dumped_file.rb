@@ -125,4 +125,10 @@ class DumpedFile < ActiveRecord::Base
 			""
 		end
 	end
+	
+	def self.find_by_readable_hash(sought_hash)
+		binary_hash = [sought_hash].pack('H*')
+		DumpedFile.find_by(file_hash: binary_hash)
+	end
+	
 end

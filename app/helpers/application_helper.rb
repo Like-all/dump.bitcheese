@@ -22,4 +22,12 @@ module ApplicationHelper
 			content_tag :span, truncate(string, length: len), title: string
 		end
 	end
+	
+	def dumped_file_path(dumped_file)
+		"/" + dumped_file.filename
+	end
+	
+	def dumped_file_preview_path(dumped_file)
+		"/" + dumped_file.filename + "/preview"
+	end
 end

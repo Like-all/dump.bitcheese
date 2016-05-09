@@ -16,6 +16,7 @@ Rails.application.routes.draw do
 	get 'images/:slug/thumb/:filename', to: 'images#thumb', slug: slug_template, filename: file_template
 	get 'images/:slug/:filename/preview', to: 'images#preview', slug: slug_template, filename: file_template
 	get 'files/:slug/:filename/preview', to: 'files#preview', slug: slug_template, filename: file_template
+	get 'search/sha512/:hash', to: 'search#find_by_hash', hash: /[a-f0-9]+/i
 	get 'referers', to: 'referers#index'
 	get 'downloads', to: 'downloads#index'
 	get 'uploads', to: 'uploads#index'

@@ -583,6 +583,13 @@ CREATE INDEX index_dumped_files_on_accessed_at ON dumped_files USING btree (acce
 
 
 --
+-- Name: index_dumped_files_on_file_hash; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_dumped_files_on_file_hash ON dumped_files USING btree (file_hash);
+
+
+--
 -- Name: index_dumped_files_on_filename; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -732,4 +739,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160509170355');
 INSERT INTO schema_migrations (version) VALUES ('20160509171748');
 
 INSERT INTO schema_migrations (version) VALUES ('20160509192134');
+
+INSERT INTO schema_migrations (version) VALUES ('20160509200535');
 
