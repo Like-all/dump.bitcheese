@@ -30,7 +30,7 @@ class ImagesController < ApplicationController
 				u = Upload.new
 				u.ip = request.remote_ip
 				u.filename = File.join("images", file_key, cleaned_name)
-				u.user_agent = UserAgent.find_or_create_by(user_agent_string: request.user_agent)
+				u.user_agent = UserAgent.obtain(request.user_agent)
 				u.size = uploaded.size
 				u.save!
 				f = DumpedFile.find_or_initialize_by(filename: u.filename)
@@ -73,8 +73,8 @@ class ImagesController < ApplicationController
 				u = Download.new
 				u.ip = request.remote_ip
 				u.filename = fname
-				u.user_agent = UserAgent.find_or_create_by(user_agent_string: request.user_agent)
-				u.referer = Referer.find_or_create_by(referer_string: request.referer)
+				u.user_agent = UserAgent.obtain(request.user_agent)
+				u.referer = Referer.obtain(request.referer)
 				u.size = File.size(filename)
 				u.save!
 				
@@ -117,8 +117,8 @@ class ImagesController < ApplicationController
 				u = Download.new
 				u.ip = request.remote_ip
 				u.filename = File.join("images", Dump.clean_name(params[:slug].to_s), "thumb", Dump.clean_name(params[:filename]))
-				u.user_agent = UserAgent.find_or_create_by(user_agent_string: request.user_agent)
-				u.referer = Referer.find_or_create_by(referer_string: request.referer)
+				u.user_agent = UserAgent.obtain(request.user_agent)
+				u.referer = Referer.obtain(request.referer)
 				u.size = File.size(filename)
 				u.save!
 			end
