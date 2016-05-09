@@ -45,9 +45,9 @@ class DumpedFile < ActiveRecord::Base
 				ActiveRecord::Base.connection.execute("LOCK TABLE referers, thaw_requests IN SHARE ROW EXCLUSIVE MODE")
 				thaw_request = ThawRequest.new(filename: self.filename, referer: Referer.obtain(request.referer), size: self.size, user_agent: UserAgent.obtain(request.user_agent), ip: request.remote_ip)
 				thaw_request.save!
+				FileRetrievalJob.perform_later(self)
+				return thaw_request
 			end
-			FileRetrievalJob.perform_later(self)
-			return thaw_request
 		else
 			return :not_thawing
 		end
