@@ -1,5 +1,13 @@
 <% content_for :title, "image preview: #{@filename}" %>
-<a href="<%= @image_path %>"><img src="<%= @thumb_path %>" alt="Your image" /></a> <%= number_to_human_size @size, prefix: :si %>
+<a href="<%= @image_path %>"><img src="<%= @thumb_path %>" alt="Your image" /></a> <br />
+<%= number_to_human_size @dumped_file.size, prefix: :si %>,
+<% unless @dumped_file.file_frozen %>
+<%= Dump.get_content_type @dumped_file.file_path %>
+<% else %>
+file is frozen.
+<% end %>
+<br />
+SHA512: <%= @dumped_file.readable_hash %>
 <table>
 <tr>
 <td>Direct link: </td>

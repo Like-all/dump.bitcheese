@@ -114,7 +114,8 @@ CREATE TABLE dumped_files (
     filename character varying,
     size integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    file_hash bytea
 );
 
 
@@ -485,14 +486,6 @@ ALTER TABLE ONLY frozen_files
 
 
 --
--- Name: referer_string_constraint; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY referers
-    ADD CONSTRAINT referer_string_constraint UNIQUE (referer_string);
-
-
---
 -- Name: referers_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -737,4 +730,6 @@ INSERT INTO schema_migrations (version) VALUES ('20160427225729');
 INSERT INTO schema_migrations (version) VALUES ('20160509170355');
 
 INSERT INTO schema_migrations (version) VALUES ('20160509171748');
+
+INSERT INTO schema_migrations (version) VALUES ('20160509192134');
 

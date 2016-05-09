@@ -1,2 +1,10 @@
 <% content_for :title, "file preview: #{@filename}" %>
-<a href="<%= url_for controller: :files, action: :download, slug: @slug, filename: @filename %>"><%= @filename %></a> <%= number_to_human_size @size, prefix: :si %>
+<a href="<%= url_for controller: :files, action: :download, slug: @slug, filename: @filename %>"><%= @filename %></a> <br />
+<%= number_to_human_size @dumped_file.size, prefix: :si %>,
+<% unless @dumped_file.file_frozen %>
+<%= Dump.get_content_type @dumped_file.file_path %>
+<% else %>
+file is frozen.
+<% end %>
+<br />
+SHA512: <%= @dumped_file.readable_hash %>

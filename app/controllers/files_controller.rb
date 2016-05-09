@@ -30,6 +30,7 @@ class FilesController < ApplicationController
 				f = DumpedFile.find_or_initialize_by(filename: u.filename)
 				f.size = uploaded.size
 				f.accessed_at = DateTime.now
+				f.file_hash = Digest::SHA512.file(f.file_path).digest
 				f.save!
 			end
 			if request.query_string == "simple"
@@ -43,7 +44,8 @@ class FilesController < ApplicationController
 	def preview
 		@slug = Dump.clean_name(params[:slug].to_s)
 		@filename = Dump.clean_name(params[:filename])
-		@size = File.size("#{Settings.dir}/files/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}")
+		@dumped_file = DumpedFile.find_by(filename: "files/#{@slug ? @slug + "/" : ""}#{@filename}")
+		return not_found unless @dumped_file
 	end
 	
 	def download

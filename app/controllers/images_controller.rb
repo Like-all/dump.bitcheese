@@ -35,6 +35,7 @@ class ImagesController < ApplicationController
 				u.save!
 				f = DumpedFile.find_or_initialize_by(filename: u.filename)
 				f.size = uploaded.size
+				f.file_hash = Digest::SHA512.file(f.file_path).digest
 				f.accessed_at = DateTime.now
 				f.save!
 			end
@@ -49,7 +50,8 @@ class ImagesController < ApplicationController
 	def preview
 		@slug = Dump.clean_name(params[:slug])
 		@filename = Dump.clean_name(params[:filename])
-		@size = File.size("#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}")
+		@dumped_file = DumpedFile.find_by(filename: "images/#{@slug ? @slug + "/" : ""}#{@filename}")
+		return not_found unless @dumped_file
 		@image_path = url_for(controller: :images, action: :download, slug: @slug, filename: @filename, only_path: false)
 		@thumb_path = url_for(controller: :images, action: :thumb, slug: @slug, filename: @filename, only_path: false)
 	end

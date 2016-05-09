@@ -113,7 +113,16 @@ class DumpedFile < ActiveRecord::Base
 		FileUtils.rm path
 		df = DumpedFile.find_by(filename: filename)
 		df.mark_thawed!
+		df.file_hash = Digest::SHA512.file(df.file_path).digest
 		df.save!
 		ThawRequest.where(filename: filename, finished: false).update_all(finished: true)
+	end
+	
+	def readable_hash
+		if self.file_hash
+			self.file_hash.unpack('H*')[0]
+		else
+			""
+		end
 	end
 end
