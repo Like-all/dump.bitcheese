@@ -14,35 +14,44 @@ class ImagesController < ApplicationController
 			flash[:error] = "File is too big!"
 			redirect_to root_url
 		else
-			image = Magick::ImageList.new(uploaded.tempfile.path)
-			unless ["PNG", "JPEG", "GIF"].include? image.format
-				flash[:error] = "Suspicious image format"
-				redirect_to root_url
-			end
-			cleaned_name = Dump.clean_name(uploaded.original_filename)
-			file_key = Dump.gen_suitable_key(Settings.key_size, lambda do |f| !File.exists?(File.join(Settings.dir, "images", f, cleaned_name)) end)
-			file_name = File.join(Settings.dir, "images", file_key, cleaned_name)
-			FileUtils.mkdir_p File.join(Settings.dir, "images", file_key)
-			File.open(file_name, "wb") do |f| f.write uploaded.read end
-			# Success! Log it.
-			Upload.transaction do
-				ActiveRecord::Base.connection.execute("LOCK TABLE uploads, user_agents, dumped_files IN SHARE ROW EXCLUSIVE MODE")
-				u = Upload.new
-				u.ip = request.remote_ip
-				u.filename = File.join("images", file_key, cleaned_name)
-				u.user_agent = UserAgent.obtain(request.user_agent)
-				u.size = uploaded.size
-				u.save!
-				f = DumpedFile.find_or_initialize_by(filename: u.filename)
-				f.size = uploaded.size
-				f.file_hash = Digest::SHA512.file(f.file_path).digest
-				f.accessed_at = DateTime.now
-				f.save!
-			end
-			if request.query_string == "simple"
-				render plain: url_for(controller: "images", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
+			hash_of_file = Digest::SHA512.file(uploaded.path).digest
+			if file = DumpedFile.find_by(file_hash: hash_of_file, size: uploaded.size)
+				if request.query_string == "simple"
+					render plain: URI.parse(request.url).merge(URI.parse(dumped_file_path(file)))
+				else
+					redirect_to dumped_file_preview_path(file)
+				end
 			else
-				redirect_to url_for(controller: "images", action: "preview", slug: file_key, filename: cleaned_name)
+				image = Magick::ImageList.new(uploaded.tempfile.path)
+				unless ["PNG", "JPEG", "GIF"].include? image.format
+					flash[:error] = "Suspicious image format"
+					redirect_to root_url
+				end
+				cleaned_name = Dump.clean_name(uploaded.original_filename)
+				file_key = Dump.gen_suitable_key(Settings.key_size, lambda do |f| !File.exists?(File.join(Settings.dir, "images", f, cleaned_name)) end)
+				file_name = File.join(Settings.dir, "images", file_key, cleaned_name)
+				FileUtils.mkdir_p File.join(Settings.dir, "images", file_key)
+				File.open(file_name, "wb") do |f| f.write uploaded.read end
+				# Success! Log it.
+				Upload.transaction do
+					ActiveRecord::Base.connection.execute("LOCK TABLE uploads, user_agents, dumped_files IN SHARE ROW EXCLUSIVE MODE")
+					u = Upload.new
+					u.ip = request.remote_ip
+					u.filename = File.join("images", file_key, cleaned_name)
+					u.user_agent = UserAgent.obtain(request.user_agent)
+					u.size = uploaded.size
+					u.save!
+					f = DumpedFile.find_or_initialize_by(filename: u.filename)
+					f.size = uploaded.size
+					f.file_hash = Digest::SHA512.file(f.file_path).digest
+					f.accessed_at = DateTime.now
+					f.save!
+				end
+				if request.query_string == "simple"
+					render plain: url_for(controller: "images", action: "download", slug: file_key, filename: cleaned_name, only_path: false)
+				else
+					redirect_to url_for(controller: "images", action: "preview", slug: file_key, filename: cleaned_name)
+				end
 			end
 		end
 	end
