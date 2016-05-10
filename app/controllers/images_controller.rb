@@ -125,7 +125,7 @@ class ImagesController < ApplicationController
 					redirect_to root_url
 				end
 				FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
-				image = FastImage.new(filename)
+				image = FastImage.new(File.open(filename, "rb"))
 				if image.size[0] <= Settings.thumb_width && image.size[1] <= Settings.thumb_height
 					FileUtils.copy(filename, thumb_name)
 				else
@@ -135,7 +135,7 @@ class ImagesController < ApplicationController
 						[(image.size[0].to_f / (image.size[1].to_f / Settings.thumb_height.to_f)).to_i, Settings.thumb_height]
 					end
 					
-					FastImage.resize(filename, newx, newy, outfile: thumb_name)
+					FastImage.resize(File.open(filename, "rb"), newx, newy, outfile: thumb_name)
 				end
 			end
 		
