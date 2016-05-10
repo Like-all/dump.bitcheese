@@ -1,6 +1,9 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    RubyInline (3.12.4)
+      ZenTest (~> 4.3)
+    ZenTest (4.11.0)
     actionmailer (4.2.5.1)
       actionpack (= 4.2.5.1)
       actionview (= 4.2.5.1)
@@ -36,6 +39,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    addressable (2.4.0)
     arel (6.0.3)
     aws-sdk (2.2.20)
       aws-sdk-resources (= 2.2.20)
@@ -81,6 +85,11 @@ GEM
       activerecord (>= 3.0, < 5)
       delayed_job (>= 3.0, < 5)
     erubis (2.7.0)
+    fastimage (2.0.0)
+      addressable (~> 2)
+    fastimage_resize (2.0.3)
+      RubyInline (>= 3.8.2)
+      fastimage (>= 1.2.9)
     ffi (1.9.10)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
@@ -150,7 +159,6 @@ GEM
       rbnacl (>= 3.0.1)
     rdoc (4.2.2)
       json (~> 1.4)
-    rmagick (2.15.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
@@ -194,6 +202,7 @@ DEPENDENCIES
   config
   daemons
   delayed_job_active_record
+  fastimage_resize
   gpgme
   jbuilder (~> 2.0)
   kaminari
@@ -201,7 +210,6 @@ DEPENDENCIES
   pg (~> 0.15)
   puma
   rails (= 4.2.5.1)
-  rmagick
   sdoc (~> 0.4.0)
   simple_captcha2
   web-console (~> 2.0)

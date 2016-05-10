@@ -17,10 +17,10 @@ class Dump
 		name.gsub(%r|[\s\0/]|, "_")
 	end
 	
-	def self.get_content_type(filename)
+	def self.get_content_type(filename, options = {})
 		# Try rails dict first since file sometimes fails
 		mime = Mime::Type.lookup_by_extension(filename.scan(/(?<=\.).*$/)[0])
-		return mime.to_s if mime
+		return mime.to_s if mime && !options[:file_only]
 		IO.popen(%w|file -e text -e encoding -e tokens -e cdf  -e compress -e apptype -e elf -e tar -ib| << filename) do |i| i.read end.split(";")[0]
 	end
 	

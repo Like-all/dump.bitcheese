@@ -1,8 +1,9 @@
 require_dependency 'dump'
 
 class ImagesController < ApplicationController
+	FORMATS = ["image/png", "image/jpeg", "image/gif"]
+	
 	def upload
-		return not_found
 		uploaded = params[:file]
 		if !Dump.get_upload_permission && !simple_captcha_valid?
 			flash[:error] = "Please input correct captcha"
@@ -22,8 +23,9 @@ class ImagesController < ApplicationController
 					redirect_to dumped_file_preview_path(file)
 				end
 			else
-				image = Magick::ImageList.new(uploaded.tempfile.path)
-				unless ["PNG", "JPEG", "GIF"].include? image.format
+				content_type = Dump.get_content_type(uploaded.path, file_only: true)
+				
+				unless FORMATS.include? content_type
 					flash[:error] = "Suspicious image format"
 					redirect_to root_url
 				end
@@ -116,12 +118,25 @@ class ImagesController < ApplicationController
 			end
 			
 			if !File.file? thumb_name
-				return not_found
-				# Create thumb
-				image = Magick::ImageList.new(filename)
-				image.resize_to_fit!(Settings.thumb_width, Settings.thumb_height)
+				content_type = Dump.get_content_type(filename, file_only: true)
+				
+				unless FORMATS.include? content_type
+					flash[:error] = "Suspicious image format"
+					redirect_to root_url
+				end
 				FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
-				image.write(thumb_name)
+				image = FastImage.new(filename)
+				if image.size[0] <= Settings.thumb_width && image.size[1] <= Settings.thumb_height
+					FileUtils.copy(filename, thumb_name)
+				else
+					newx, newy = if image.size[0].to_f / Settings.thumb_width.to_f > image.size[1].to_f / Settings.thumb_height.to_f
+						[Settings.thumb_width, (image.size[1].to_f / (image.size[0].to_f / Settings.thumb_width.to_f)).to_i]
+					else
+						[(image.size[0].to_f / (image.size[1].to_f / Settings.thumb_height.to_f)).to_i, Settings.thumb_height]
+					end
+					
+					FastImage.resize(filename, newx, newy, outfile: thumb_name)
+				end
 			end
 		
 			if !request.referer.to_s.start_with?(root_url(only_path: false))
