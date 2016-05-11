@@ -27,7 +27,7 @@ class ImagesController < ApplicationController
 				
 				unless FORMATS.include? content_type
 					flash[:error] = "Suspicious image format"
-					redirect_to root_url
+					redirect_to(root_url) and return
 				end
 				cleaned_name = Dump.clean_name(uploaded.original_filename)
 				file_key = Dump.gen_suitable_key(Settings.key_size, lambda do |f| !File.exists?(File.join(Settings.dir, "images", f, cleaned_name)) end)
@@ -122,7 +122,7 @@ class ImagesController < ApplicationController
 				
 				unless FORMATS.include? content_type
 					flash[:error] = "Suspicious image format"
-					redirect_to root_url
+					redirect_to(root_url) and return
 				end
 				FileUtils.mkdir_p "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb"
 				image = FastImage.new(File.open(filename, "rb"))
