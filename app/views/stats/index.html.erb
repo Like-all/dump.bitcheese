@@ -8,3 +8,5 @@ Live: <%= number_to_human_size @live_files.sum(:size), si: true %> in <%= @live_
 Uploads last 24 hrs: <%= number_to_human_size @uploads_last_day.sum(:size), si: true %> in <%= @uploads_last_day.count %> files
 <br />
 Downloads last 24 hrs: <%= number_to_human_size @downloads_last_day.sum(:size), si: true %> in <%= @downloads_last_day.count %> files
+<br />
+Total thaws: <%= number_to_human_size @thawed.sum(:size), si: true %> in <%= @thawed.count %> files

@@ -7,5 +7,6 @@ class StatsController < ApplicationController
 		@live_files = DumpedFile.where(file_frozen: false)
 		@uploads_last_day = Upload.where("created_at > ?", DateTime.now - 1.day)
 		@downloads_last_day = Download.where("created_at > ?", DateTime.now - 1.day)
+		@thawed = ThawRequest
 	end
 end
