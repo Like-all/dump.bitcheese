@@ -1,6 +1,8 @@
 <h1> Dump stats </h1>
 Not accessed in last month: <%= number_to_human_size @obscure_files.sum(:size), si: true %> in <%= @obscure_files.count %> files
 <br />
+Never accessed: <%= number_to_human_size @very_obscure_files.sum(:size), si: true %> in <%= @very_obscure_files.count %> files
+<br />
 Frozen: <%= number_to_human_size @frozen_files.sum(:size), si: true %> in <%= @frozen_files.count %> files
 <br />
 Live: <%= number_to_human_size @live_files.sum(:size), si: true %> in <%= @live_files.count %> files
