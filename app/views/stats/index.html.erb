@@ -1,0 +1,10 @@
+<h1> Dump stats </h1>
+Not accessed in last month: <%= number_to_human_size @obscure_files.sum(:size), si: true %> in <%= @obscure_files.count %> files
+<br />
+Frozen: <%= number_to_human_size @frozen_files.sum(:size), si: true %> in <%= @frozen_files.count %> files
+<br />
+Live: <%= number_to_human_size @live_files.sum(:size), si: true %> in <%= @live_files.count %> files
+<br />
+Uploads last 24 hrs: <%= number_to_human_size @uploads_last_day.sum(:size), si: true %> in <%= @uploads_last_day.count %> files
+<br />
+Downloads last 24 hrs: <%= number_to_human_size @downloads_last_day.sum(:size), si: true %> in <%= @downloads_last_day.count %> files

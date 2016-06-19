@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 	get 'downloads', to: 'downloads#index'
 	get 'uploads', to: 'uploads#index'
 	get 'thaw-requests', to: 'thaw_requests#index'
+	get 'stats', to: 'stats#index'
 	
 	post 'upload-file', to: 'files#upload'
 	post 'upload-image', to: 'images#upload'
