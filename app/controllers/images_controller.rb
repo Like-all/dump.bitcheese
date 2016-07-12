@@ -73,8 +73,10 @@ class ImagesController < ApplicationController
 		Download.transaction do
 			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
 			f = DumpedFile.find_or_initialize_by(filename: fname)
+			stale? last_modified: f.created_at
 			
 			if !File.file?(filename) && f.file_frozen
+				return unless stale? last_modified: Time.at(0)
 				@thaw_request = f.thaw!(request)
 				return(render('files/thawin', status: 503))
 			elsif f.file_frozen
@@ -101,16 +103,17 @@ class ImagesController < ApplicationController
 	def thumb
 		filename = "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/#{Dump.clean_name(params[:filename])}"
 		fname = File.join("images", Dump.clean_name(params[:slug].to_s), Dump.clean_name(params[:filename]))
-		return not_found unless File.file? filename
 		thumb_name = "#{Settings.dir}/images/#{Dump.clean_name(params[:slug].to_s)}/thumb/#{Dump.clean_name(params[:filename])}"
 		Download.transaction do
 			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
 			f = DumpedFile.find_or_initialize_by(filename: fname)
+			stale? last_modified: f.created_at
 			
-			if !File.file?(filename) && f.file_frozen
+			if !File.file?(thumb_name) && !File.file?(filename) && f.file_frozen
+				return unless stale? last_modified: Time.at(0)
 				@thaw_request = f.thaw!(request)
 				return(render('files/thawin', status: 503))
-			elsif f.file_frozen
+			elsif File.file?(filename) && f.file_frozen
 				f.mark_thawed!
 				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
 			elsif !File.file?(filename) 

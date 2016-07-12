@@ -63,9 +63,11 @@ class FilesController < ApplicationController
 		Download.transaction do
 			ActiveRecord::Base.connection.execute("LOCK TABLE downloads, user_agents, referers, thaw_requests, dumped_files IN SHARE ROW EXCLUSIVE MODE")
 			f = DumpedFile.find_or_initialize_by(filename: fname)
+			
 			if !File.file?(filename) && f.file_frozen
-				@thaw_request = f.thaw!(request)
-				return(render('files/thawin', status: 503))
+				return unless stale? last_modified: Time.at(0)
+ 				@thaw_request = f.thaw!(request)
+ 				return(render('files/thawin', status: 503))
 			elsif f.file_frozen
 				f.mark_thawed!
 				ThawRequest.where(filename: fname, finished: false).update_all(finished: true)
