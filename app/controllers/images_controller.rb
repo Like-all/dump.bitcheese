@@ -121,6 +121,7 @@ class ImagesController < ApplicationController
 			end
 			
 			if !File.file? thumb_name
+				return not_found
 				content_type = Dump.get_content_type(filename, file_only: true)
 				
 				unless FORMATS.include? content_type
