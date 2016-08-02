@@ -16,7 +16,7 @@ class FilesController < ApplicationController
 			hash_of_file = Digest::SHA512.file(uploaded.path).digest
 			if file = DumpedFile.find_by(file_hash: hash_of_file, size: uploaded.size)
 				if request.query_string == "simple"
-					render plain: URI.parse(request.url).merge(URI.parse(dumped_file_path(file)))
+					render plain: URI.parse(request.url).merge(URI.parse(URI.encode(dumped_file_path(file))))
 				else
 					redirect_to dumped_file_preview_path(file)
 				end
