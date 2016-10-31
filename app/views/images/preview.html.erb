@@ -32,4 +32,10 @@ SHA512: <%= @dumped_file.readable_hash %>
 <td><input type="text" size="100" readonly="readonly" value="!<%= @thumb_path %>!:<%= @image_path %>" /></td></tr><br />
 <tr>
 <td>Textile (w/o preview): </td>
-<td><input type="text" size="100" readonly="readonly" value="!<%= @image_path %>!" /></td></tr></table>
+<td><input type="text" size="100" readonly="readonly" value="!<%= @image_path %>!" /></td></tr><br />
+<tr>
+<td>Markdown: </td>
+<td><input type="text" size="100" readonly="readonly" value="[![](<%= @thumb_path %>)](<%= @image_path %>)" /></td></tr><br />
+<tr>
+<td>Markdown (w/o preview): </td>
+<td><input type="text" size="100" readonly="readonly" value="![](<%= @image_path %>)" /></td></tr></table>
